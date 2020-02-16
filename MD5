@@ -1,0 +1,11 @@
+9070e103b745246167690837cf703fb9 *DESCRIPTION
+75b5ea970258de895ca96f3181b8d226 *NAMESPACE
+834a92191d906ca446c8a9603e17d693 *R/implied_probabilities.R
+36fd139695e3baa1e55cba43a4853575 *build/vignette.rds
+aa3c1d34d43a0625c11e32d252ef5614 *inst/doc/introduction.R
+71fa897a314a5fac9c5cdbe6693f7ab0 *inst/doc/introduction.Rmd
+47f1d60faabf4913f7209e1e21d887af *inst/doc/introduction.html
+498997f2f8a6b772c3227b49f85105a9 *man/implied_probabilities.Rd
+bc77ebadaa37370915e00adac9036b01 *tests/testthat.R
+e98952589614c546150c5f577b8cac70 *tests/testthat/test_1.R
+71fa897a314a5fac9c5cdbe6693f7ab0 *vignettes/introduction.Rmd

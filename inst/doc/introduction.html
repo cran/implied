@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Jonas C. Lindstrøm" />
+
+<meta name="date" content="2020-01-30" />
+
+<title>Introduction to the implied package</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Introduction to the implied package</h1>
+<h4 class="author"><em>Jonas C. Lindstrøm</em></h4>
+<h4 class="date"><em>2020-01-30</em></h4>
+
+
+
+<p>This package contain a single function, implied_probabilities(), that convert bookmaker odds into proper probabiltiies. Several methods are available, with different assumptions regarding the underlying mechanism the bookmakers convert their probabilities into odds.</p>
+<p>A naive conversion of bookmaker odds into probabilities has two main problems. The first is that the probabilities are not proper probabilities, since they sum to more than 1. The excess probability is called the bookmakers margin. The second problem is that the probabilities, even if the margin is removed, will be biased in several ways, usually because of what is called the <a href="https://en.wikipedia.org/wiki/Favourite-longshot_bias">favorite-longshot bias</a>. The methods in this package remove the bookmaker margin and some of them also adjust for favorite-longshot bias.</p>
+<div id="the-basic-method" class="section level2">
+<h2>The basic method</h2>
+<p>The default method used by the function implied_probabilities() is called the basic method. This is the simplest and most common method for converting bookmaker odds into probabilties, and is obtained by dividing the naive probabilities (the inverted odds) by the sum of the inverted odds. If <i>p<sub>i</sub></i> is the true underlying probability for outcome <i>i</i>, and <i>r<sub>i</sub></i> is the cooresponding inverted odds, then the probabilities are computed as</p>
+<p><i>p<sub>i</sub></i> = <i>r<sub>i</sub></i> / sum(<i>r</i>)</p>
+<p>This method tend to be the least accurate of the methods in this package. I have also seen this normalization method been referred to as the multiplicative method.</p>
+<p>The implied_probabilities() function return a list with the proper probabilities (as a matrix) and the bookmaker margins.</p>
+<p>In the examples below are three sets of bookmaker odds from three football matches.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+<span class="kw">library</span>(implied)
+
+<span class="co"># One column for each outcome, one row for each race or match.</span>
+my_odds &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">c</span>(<span class="fl">4.20</span>, <span class="fl">3.70</span>, <span class="fl">1.95</span>),
+                 <span class="kw">c</span>(<span class="fl">2.45</span>, <span class="fl">3.70</span>, <span class="fl">2.90</span>),
+                 <span class="kw">c</span>(<span class="fl">2.05</span>, <span class="fl">3.20</span>, <span class="fl">3.80</span>))
+<span class="kw">colnames</span>(my_odds) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'Home'</span>, <span class="st">'Draw'</span>, <span class="st">'Away'</span>)
+
+res1 &lt;-<span class="st"> </span><span class="kw">implied_probabilities</span>(my_odds)
+
+res1$probabilities
+<span class="co">#&gt;           Home      Draw      Away</span>
+<span class="co">#&gt; [1,] 0.2331556 0.2646631 0.5021813</span>
+<span class="co">#&gt; [2,] 0.3988848 0.2641264 0.3369888</span>
+<span class="co">#&gt; [3,] 0.4586948 0.2938514 0.2474538</span>
+
+res1$margin
+<span class="co">#&gt; [1] 0.02118602 0.02326112 0.06346277</span></code></pre></div>
+</div>
+<div id="margin-weights-proportional-to-the-odds" class="section level2">
+<h2>Margin Weights Proportional to the Odds</h2>
+<p>This method is from <a href="https://www.football-data.co.uk/wisdom_of_crowd_bets">Joseph Buchdahl’s Wisom of the Crowds document</a>, and assumes that the margin applied by the bookmaker for each of the outcome is proprtional to the probabilitiy of the outcome. In other words, the excessive probabilties are unevenly applied in a way that is reflects the favorite-longshot bias.</p>
+<p>The probabilities are calculated from the bookmaker odds <i>O</i> using the following formula</p>
+<p><i>p<sub>i</sub></i> = n * O<sub>i</sub> / (n - M * O<sub>i</sub>)</p>
+<p>where n is the number of outcomes, and M is the bookmaker margin.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res2 &lt;-<span class="st"> </span><span class="kw">implied_probabilities</span>(my_odds, <span class="dt">method =</span> <span class="st">'wpo'</span>)
+
+res2$probabilities
+<span class="co">#&gt;           Home      Draw      Away</span>
+<span class="co">#&gt; [1,] 0.2310332 0.2632083 0.5057585</span>
+<span class="co">#&gt; [2,] 0.4004096 0.2625166 0.3370739</span>
+<span class="co">#&gt; [3,] 0.4666506 0.2913457 0.2420036</span>
+
+<span class="co"># The margins applied to each outcome.</span>
+res2$specific_margins
+<span class="co">#&gt;            Home       Draw       Away</span>
+<span class="co">#&gt; [1,] 0.03056706 0.02683049 0.01396320</span>
+<span class="co">#&gt; [2,] 0.01936444 0.02953607 0.02300299</span>
+<span class="co">#&gt; [3,] 0.04533211 0.07260878 0.08741297</span></code></pre></div>
+</div>
+<div id="the-odds-ratio-method" class="section level2">
+<h2>The odds ratio method</h2>
+<p>The odds ratio method is also from the Wisdom of the Crowds document, but is originally from an <a href="https://www.sportstradingnetwork.com/article/fixed-odds-betting-traditional-odds/">article by Keith Cheung</a>. This method models the relationship between the proper probabilities and the improper bookmaker probabilties using the odds ratio (OR) function:</p>
+<p>OR = <i>p<sub>i</sub></i> (1 - <i>r<sub>i</sub></i>) / <i>r<sub>i</sub></i> (1 - <i>p<sub>i</sub></i>)</p>
+<p>This gives the probabilities</p>
+<p><i>p<sub>i</sub></i> = <i>r<sub>i</sub></i> / OR + <i>r<sub>i</sub></i> - (OR * <i>r<sub>i</sub></i>)</p>
+<p>where the odds ratio OR is selected so that sum(<i>p<sub>i</sub></i>) = 1.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res3 &lt;-<span class="st"> </span><span class="kw">implied_probabilities</span>(my_odds, <span class="dt">method =</span> <span class="st">'or'</span>)
+
+res3$probabilities
+<span class="co">#&gt;           Home      Draw      Away</span>
+<span class="co">#&gt; [1,] 0.2320048 0.2636415 0.5043537</span>
+<span class="co">#&gt; [2,] 0.3996912 0.2633869 0.3369219</span>
+<span class="co">#&gt; [3,] 0.4634406 0.2919032 0.2446562</span>
+
+<span class="co"># The odds ratios converting the proper probablities to bookmaker probabilities.</span>
+res3$odds_ratios
+<span class="co">#&gt; [1] 1.034449 1.035805 1.102606</span></code></pre></div>
+</div>
+<div id="the-power-method" class="section level2">
+<h2>The power method</h2>
+<p>The power method models the bookmaker probabilties as a power function of the proper probabilties. This method is also described in the Wisdom of the Crowds document, where it is referred to as the logarithmic method.</p>
+<p><i>p<sub>i</sub></i> = <i>r<sub>i</sub></i><sup>(1/k)</sup></p>
+<p>where <i>k</i> is selected so that sum(<i>p<sub>i</sub></i>) = 1.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res4 &lt;-<span class="st"> </span><span class="kw">implied_probabilities</span>(my_odds, <span class="dt">method =</span> <span class="st">'power'</span>)
+
+res4$probabilities
+<span class="co">#&gt;           Home      Draw      Away</span>
+<span class="co">#&gt; [1,] 0.2311414 0.2630644 0.5057942</span>
+<span class="co">#&gt; [2,] 0.4003156 0.2627189 0.3369655</span>
+<span class="co">#&gt; [3,] 0.4667139 0.2908985 0.2423876</span>
+
+<span class="co"># The inverse exponents (n) used to convert the proper probablities to bookmaker probabilities.</span>
+res4$exponents
+<span class="co">#&gt; [1] 0.9797664 0.9788115 0.9419744</span></code></pre></div>
+</div>
+<div id="the-additive-method" class="section level2">
+<h2>The additive method</h2>
+<p>The additive method removes the margin from the naive probabilites by subtracting an equal amount of of the margin from each outcome. The formula used is</p>
+<p><i>p<sub>i</sub></i> = <i>r<sub>i</sub></i> - ((sum(<i>r</i>) - 1) / n)</p>
+<p>If there are only two outcomes, the additive method and Shin’s method are equivalent.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+res5 &lt;-<span class="st"> </span><span class="kw">implied_probabilities</span>(my_odds, <span class="dt">method =</span> <span class="st">'additive'</span>)
+
+res5$probabilities
+<span class="co">#&gt;           Home      Draw      Away</span>
+<span class="co">#&gt; [1,] 0.2310332 0.2632083 0.5057585</span>
+<span class="co">#&gt; [2,] 0.4004096 0.2625166 0.3370739</span>
+<span class="co">#&gt; [3,] 0.4666506 0.2913457 0.2420036</span></code></pre></div>
+<p>One problem with the additive method is that it can produce negative probabilities, escpecially for outcomes with low probabilties. This can often be the case when there are many outcomes, for example in racing sports. If this happens, you will be given a warning. Here is an example taken from Clarke et al (2017):</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+my_odds2 &lt;-<span class="st"> </span><span class="kw">t</span>(<span class="kw">matrix</span>(<span class="dv">1</span>/<span class="kw">c</span>(<span class="fl">0.870</span>, <span class="fl">0.2</span>, <span class="fl">0.1</span>, <span class="fl">0.05</span>, <span class="fl">0.02</span>, <span class="fl">0.01</span>)))
+<span class="kw">colnames</span>(my_odds2) &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">'X'</span>, <span class="dv">1</span>:<span class="dv">6</span>, <span class="dt">sep=</span><span class="st">''</span>)
+
+res6 &lt;-<span class="st"> </span><span class="kw">implied_probabilities</span>(my_odds2, <span class="dt">method =</span> <span class="st">'additive'</span>)
+<span class="co">#&gt; Warning in implied_probabilities(my_odds2, method = &quot;additive&quot;): Probabilities outside the 0-1 range produced at 1 instances.</span>
+
+res6$probabilities
+<span class="co">#&gt;             X1        X2         X3          X4          X5          X6</span>
+<span class="co">#&gt; [1,] 0.8283333 0.1583333 0.05833333 0.008333333 -0.02166667 -0.03166667</span></code></pre></div>
+</div>
+<div id="balanced-books-and-shins-method" class="section level2">
+<h2>Balanced books and Shin’s method</h2>
+<p>The two methods referred to as “balanced book” and Shin’s method are based on the assumption that there is a small proportion of bettors that actually knows the outcome (called inside traders), and the rest of the bettors reflect the otherwise “true” uncertainty about the outcome. The proportion of inside traders is denoted Z.</p>
+<p>The two methods differ in what assumptions they make about how the bookmakers react to the pressence of inside traders. Shin’s method is derived from the assumption that the bookmakers tries to maximize their profits when there are inside traders. The balanced books method assumes the bookmakers tries to minimize their losses in the worst case scenario if the least likely outcome were to acctually occur.</p>
+<p>We can not know what the insiders know, but both methods gives an estimate of the proportion of insiders.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res7 &lt;-<span class="st"> </span><span class="kw">implied_probabilities</span>(my_odds, <span class="dt">method =</span> <span class="st">'shin'</span>)
+
+res7$probabilities
+<span class="co">#&gt;           Home      Draw      Away</span>
+<span class="co">#&gt; [1,] 0.2315811 0.2635808 0.5048382</span>
+<span class="co">#&gt; [2,] 0.4000160 0.2629336 0.3370505</span>
+<span class="co">#&gt; [3,] 0.4645977 0.2919757 0.2434266</span>
+
+<span class="co"># The estimated proportion of inside traders.</span>
+res7$zvalues
+<span class="co">#&gt; [1] 0.01054734 0.01157314 0.03187455</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Balanced books</span>
+res8 &lt;-<span class="st"> </span><span class="kw">implied_probabilities</span>(my_odds, <span class="dt">method =</span> <span class="st">'bb'</span>)
+
+res8$probabilities
+<span class="co">#&gt;           Home      Draw      Away</span>
+<span class="co">#&gt; [1,] 0.2299380 0.2624575 0.5076046</span>
+<span class="co">#&gt; [2,] 0.4011989 0.2616832 0.3371179</span>
+<span class="co">#&gt; [3,] 0.4710196 0.2899698 0.2390106</span>
+
+<span class="co"># The estimated proportion of inside traders.</span>
+res8$zvalues
+<span class="co">#&gt; [1] 0.01059301 0.01163056 0.03173139</span></code></pre></div>
+</div>
+<div id="other-packages" class="section level2">
+<h2>Other packages</h2>
+<p>The <a href="https://cran.r-project.org/package=odds.converter">odds.converter</a> package can convert between different odds formats, including to decimal odds, that this package requires.</p>
+</div>
+<div id="literature" class="section level2">
+<h2>Literature</h2>
+<p>Here are some relevant references and links:</p>
+<ul>
+<li><p>Joseph Buchdahl - USING THE WISDOM OF THE CROWD TO FIND VALUE IN A FOOTBALL MATCH BETTING MARKET <a href="https://www.football-data.co.uk/wisdom_of_crowd_bets">Link</a></p></li>
+<li><p>Keith Cheung (2015) Fixed-odds betting and traditional odds <a href="https://www.sportstradingnetwork.com/article/fixed-odds-betting-traditional-odds">Link</a></p></li>
+<li><p>Stephen Clarke, Stephanie Kovalchik &amp; Martin Ingram (2017) Adjusting Bookmaker’s Odds to Allow for Overround <a href="http://www.sciencepublishinggroup.com/journal/paperinfo?journalid=155&amp;doi=10.11648/j.ajss.20170506.12">Link</a></p></li>
+<li><p>Hyun Song Shin (1992) Prices of State Contingent Claims with Insider Traders, and the Favourite-Longshot Bias <a href="https://www.jstor.org/stable/2234526">Link</a></p></li>
+<li><p>Hyun Song Shin (1993) Measuring the Incidence of Insider Trading in a Market for State-Contingent Claims <a href="https://www.jstor.org/stable/2234526">Link</a></p></li>
+<li><p>Bruno Jullien &amp; Bernard Salanié (1994) Measuring the incidence of insider trading: A comment on Shin <a href="https://doi.org/10.2307/2235458">Link</a></p></li>
+<li><p>John Fingleton &amp; Patrick Waldron (1999) Optimal Determination of Bookmakers’ Betting Odds: Theory and Tests.<a href="https://pdfs.semanticscholar.org/e576/f3b103e0ba041ae072a9201b948059c7806e.pdf">Link</a></p></li>
+</ul>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
