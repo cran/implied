@@ -12,7 +12,7 @@
 
 <meta name="author" content="Jonas C. Lindstrøm" />
 
-<meta name="date" content="2020-01-30" />
+<meta name="date" content="2020-04-18" />
 
 <title>Introduction to the implied package</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Introduction to the implied package</h1>
 <h4 class="author"><em>Jonas C. Lindstrøm</em></h4>
-<h4 class="date"><em>2020-01-30</em></h4>
+<h4 class="date"><em>2020-04-18</em></h4>
 
 
 
@@ -85,6 +85,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>In the examples below are three sets of bookmaker odds from three football matches.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 <span class="kw">library</span>(implied)
+<span class="co">#&gt; If you find this package useful, please consider supporting the development at</span>
+<span class="co">#&gt; https://ko-fi.com/opisthokonta</span>
 
 <span class="co"># One column for each outcome, one row for each race or match.</span>
 my_odds &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">c</span>(<span class="fl">4.20</span>, <span class="fl">3.70</span>, <span class="fl">1.95</span>),

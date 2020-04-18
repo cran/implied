@@ -8,7 +8,8 @@ implied_probabilities(
   odds,
   method = "basic",
   normalize = TRUE,
-  grossmargin = 0
+  grossmargin = 0,
+  shin_method = "js"
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ a final normalization is applied to make absoultely sure the
 probabilities sum to 1.}
 
 \item{grossmargin}{Numeric. Must be 0 or greater. See the details.}
+
+\item{shin_method}{Character. Either 'js' (defeault) or 'uniroot'. See the details.}
 }
 \value{
 A named list. The first component is named 'probabilities' and contain a matrix of
@@ -53,8 +56,12 @@ to as the logarithmic method.
 
 The method 'shin' uses the method by Shin (1992, 1993). This model assumes that there is a fraction of
 insider trading, and that the bookmakers tries to maximize their profits. In addition to providing
-implied probabilties, the method also gives an estimate of the proportion if inside trade. The method
-implemented here is based on the algorithm in Jullien & Salanié (1994).
+implied probabilties, the method also gives an estimate of the proportion if inside trade, denoted z. Two algorithms
+are implemented for finding the probabilities and z. Which algorithm to use is chosen via the shin_mehod argument.
+The default method (shin_method = 'js') is based on the algorithm in Jullien & Salanié (1994). The 'uniroot'
+method uses R's built in equation solver to find the probabilities. The uniroot approach is also used for the
+'pwr' and 'or' methods. The two methods might give slightly different answers, especially when the bookamer margin
+(and z) is small.
 
 The 'bb' (short for "balanced books") method is from Fingleton & Waldron (1999), and is a variant of Shin's method. It too assume
 a fraction of insiders, but instead of assuming that the bookmakers maximize their profits, they
