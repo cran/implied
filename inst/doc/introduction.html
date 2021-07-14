@@ -1,25 +1,25 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <meta name="author" content="Jonas C. Lindstrøm" />
 
-<meta name="date" content="2020-08-02" />
+<meta name="date" content="2021-07-14" />
 
 <title>Introduction to the implied package</title>
 
 
 
 <style type="text/css">code{white-space: pre;}</style>
-<style type="text/css">
+<style type="text/css" data-origin="pandoc">
 div.sourceCode { overflow-x: auto; }
 table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
   margin: 0; padding: 0; vertical-align: baseline; border: none; }
@@ -55,11 +55,36 @@ code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
 code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
 code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
 code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+
 </style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
-<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+
+
 
 </head>
 
@@ -69,12 +94,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 <h1 class="title toc-ignore">Introduction to the implied package</h1>
-<h4 class="author"><em>Jonas C. Lindstrøm</em></h4>
-<h4 class="date"><em>2020-08-02</em></h4>
+<h4 class="author">Jonas C. Lindstrøm</h4>
+<h4 class="date">2021-07-14</h4>
 
 
 
-<p>This package contain a single function, implied_probabilities(), that convert bookmaker odds into proper probabiltiies. Several methods are available, with different assumptions regarding the underlying mechanism the bookmakers convert their probabilities into odds.</p>
+<p>This package contains functions that convert between bookmaker odds and probabilities. The function implied_probabilities() convert bookmaker odds into proper probabiltiies. The function implied_odds() does the inverse conversion, it turns proper probabilities into bookmaker odds. Several methods are available, with different assumptions regarding the underlying mechanism the bookmakers convert their probabilities into odds. The main focus of this introduction is present how the package works and the methods that convert bookmaker odds into probabilities and. Towards the end is a small demostration on how to convert probabiliteis to bookmaker odds.</p>
 <p>A naive conversion of bookmaker odds into probabilities has two main problems. The first is that the probabilities are not proper probabilities, since they sum to more than 1. The excess probability is called the bookmakers margin. The second problem is that the probabilities, even if the margin is removed, will be biased in several ways, usually because of what is called the <a href="https://en.wikipedia.org/wiki/Favourite-longshot_bias">favorite-longshot bias</a>. The methods in this package remove the bookmaker margin and some of them also adjust for favorite-longshot bias.</p>
 <div id="the-basic-method" class="section level2">
 <h2>The basic method</h2>
@@ -107,9 +132,9 @@ res1$margin
 </div>
 <div id="margin-weights-proportional-to-the-odds" class="section level2">
 <h2>Margin Weights Proportional to the Odds</h2>
-<p>This method is from <a href="https://www.football-data.co.uk/wisdom_of_crowd_bets">Joseph Buchdahl’s Wisom of the Crowds document</a>, and assumes that the margin applied by the bookmaker for each of the outcome is proprtional to the probabilitiy of the outcome. In other words, the excessive probabilties are unevenly applied in a way that is reflects the favorite-longshot bias.</p>
+<p>This method is from <a href="https://www.football-data.co.uk/wisdom_of_crowd_bets">Joseph Buchdahl's Wisom of the Crowds document</a>, and assumes that the margin applied by the bookmaker for each of the outcome is proprtional to the probabilitiy of the outcome. In other words, the excessive probabilties are unevenly applied in a way that is reflects the favorite-longshot bias.</p>
 <p>The probabilities are calculated from the bookmaker odds <i>O</i> using the following formula</p>
-<p><i>p<sub>i</sub></i> = n * O<sub>i</sub> / (n - M * O<sub>i</sub>)</p>
+<p><i>p<sub>i</sub></i> = (n - M * O<sub>i</sub>) / n * O<sub>i</sub></p>
 <p>where n is the number of outcomes, and M is the bookmaker margin.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res2 &lt;-<span class="st"> </span><span class="kw">implied_probabilities</span>(my_odds, <span class="dt">method =</span> <span class="st">'wpo'</span>)
 
@@ -154,19 +179,19 @@ res3$odds_ratios
 
 res4$probabilities
 <span class="co">#&gt;           Home      Draw      Away</span>
-<span class="co">#&gt; [1,] 0.2311414 0.2630644 0.5057942</span>
+<span class="co">#&gt; [1,] 0.2311414 0.2630644 0.5057941</span>
 <span class="co">#&gt; [2,] 0.4003156 0.2627189 0.3369655</span>
-<span class="co">#&gt; [3,] 0.4667139 0.2908985 0.2423876</span>
+<span class="co">#&gt; [3,] 0.4667137 0.2908986 0.2423877</span>
 
 <span class="co"># The inverse exponents (n) used to convert the proper probablities to bookmaker probabilities.</span>
 res4$exponents
-<span class="co">#&gt; [1] 0.9797664 0.9788115 0.9419744</span></code></pre></div>
+<span class="co">#&gt; [1] 0.9797666 0.9788117 0.9419759</span></code></pre></div>
 </div>
 <div id="the-additive-method" class="section level2">
 <h2>The additive method</h2>
 <p>The additive method removes the margin from the naive probabilites by subtracting an equal amount of of the margin from each outcome. The formula used is</p>
 <p><i>p<sub>i</sub></i> = <i>r<sub>i</sub></i> - ((sum(<i>r</i>) - 1) / n)</p>
-<p>If there are only two outcomes, the additive method and Shin’s method are equivalent.</p>
+<p>If there are only two outcomes, the additive method and Shin's method are equivalent.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 res5 &lt;-<span class="st"> </span><span class="kw">implied_probabilities</span>(my_odds, <span class="dt">method =</span> <span class="st">'additive'</span>)
 
@@ -188,9 +213,9 @@ res6$probabilities
 <span class="co">#&gt; [1,] 0.8283333 0.1583333 0.05833333 0.008333333 -0.02166667 -0.03166667</span></code></pre></div>
 </div>
 <div id="balanced-books-and-shins-method" class="section level2">
-<h2>Balanced books and Shin’s method</h2>
-<p>The two methods referred to as “balanced book” and Shin’s method are based on the assumption that there is a small proportion of bettors that actually knows the outcome (called inside traders), and the rest of the bettors reflect the otherwise “true” uncertainty about the outcome. The proportion of inside traders is denoted Z.</p>
-<p>The two methods differ in what assumptions they make about how the bookmakers react to the pressence of inside traders. Shin’s method is derived from the assumption that the bookmakers tries to maximize their profits when there are inside traders. The balanced books method assumes the bookmakers tries to minimize their losses in the worst case scenario if the least likely outcome were to acctually occur.</p>
+<h2>Balanced books and Shin's method</h2>
+<p>The two methods referred to as &quot;balanced book&quot; and Shin's method are based on the assumption that there is a small proportion of bettors that actually knows the outcome (called inside traders), and the rest of the bettors reflect the otherwise &quot;true&quot; uncertainty about the outcome. The proportion of inside traders is denoted Z.</p>
+<p>The two methods differ in what assumptions they make about how the bookmakers react to the pressence of inside traders. Shin's method is derived from the assumption that the bookmakers tries to maximize their profits when there are inside traders. The balanced books method assumes the bookmakers tries to minimize their losses in the worst case scenario if the least likely outcome were to acctually occur.</p>
 <p>We can not know what the insiders know, but both methods gives an estimate of the proportion of insiders.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res7 &lt;-<span class="st"> </span><span class="kw">implied_probabilities</span>(my_odds, <span class="dt">method =</span> <span class="st">'shin'</span>)
 
@@ -216,6 +241,51 @@ res8$probabilities
 res8$zvalues
 <span class="co">#&gt; [1] 0.01059301 0.01163056 0.03173139</span></code></pre></div>
 </div>
+<div id="the-jensenshannon-distance-method" class="section level2">
+<h2>The Jensen–Shannon distance method</h2>
+<p>This method sees the improper bookmaker probabilties as a noisy version of the true underlying probabilities, and uses the <a href="https://en.wikipedia.org/wiki/Jensen%E2%80%93Shannon_divergence">Jensen–Shannon (JS) distance</a> as a measure of how noisy the bookmaker probabilities are.</p>
+<p>For the sake of finding the denoised proabilities <i>p<sub>i</sub></i>, each outcome i is modelled as a binomial variable, with outcomes i and NOT i. These have probabilities <i>p<sub>i</sub></i> and 1-<i>p<sub>i</sub></i>, with corresponding improper bookmaker probabilities <i>r<sub>i</sub></i> and 1-<i>r<sub>i</sub></i>. For a given noise-level D, as measued by the symmetric JS distance, the underlying probabilities can be found by solving the JS distance equation for <i>p<sub>i</sub></i>:</p>
+<p>D = 0.5 * BKL(<i>p<sub>i</sub></i>, <i>m<sub>i</sub></i>) + 0.5 * BKL(<i>r<sub>i</sub></i>, <i>m<sub>i</sub></i>)</p>
+<p>where <i>m<sub>i</sub></i> = (<i>p<sub>i</sub></i> + <i>r<sub>i</sub></i>) / 2</p>
+<p>and</p>
+<p>BKL(x, y) = <i>x</i> * log(<i>x</i>/<i>y</i>) + (1-<i>x</i>) * log((1-<i>x</i>)/(1-<i>y</i>))) + <i>y</i> * log(<i>y</i>/<i>x</i>) + (1-<i>y</i>) * log((1-<i>y</i>)/(1-<i>y</i>))</p>
+<p>is the &quot;binomial&quot; Kullback–Leibler divergence.</p>
+<p>The solution is found numerically by finding the value of of <i>D</i> so that sum(<i>p<sub>i</sub></i>) = 1.</p>
+<p>The method was developed by Christopher D. Long (twitter: <a href="https://twitter.com/octonion">@octonion</a>), and described in a series of Twitter postings [<a href="https://twitter.com/octonion/status/1412847000068952064">1</a>].</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Balanced books</span>
+res9 &lt;-<span class="st"> </span><span class="kw">implied_probabilities</span>(my_odds, <span class="dt">method =</span> <span class="st">'jsd'</span>)
+
+res9$probabilities
+<span class="co">#&gt;           Home      Draw      Away</span>
+<span class="co">#&gt; [1,] 0.2315189 0.2634117 0.5050694</span>
+<span class="co">#&gt; [2,] 0.4000505 0.2629589 0.3369906</span>
+<span class="co">#&gt; [3,] 0.4650456 0.2915675 0.2433869</span>
+
+<span class="co"># The estimated noise (JS distance)</span>
+res9$distance
+<span class="co">#&gt; [1] 0.005485370 0.005849242 0.016099288</span></code></pre></div>
+</div>
+<div id="converting-probabilities-to-odds" class="section level2">
+<h2>Converting probabilities to odds</h2>
+<p>There is also a function that can do the opposite what the implied_probabilities() function does, namely the implied_odds() function. This function converts probabilities to odds, for a given margin, the inverse of the methods as described above. Not all methods have been implemented yet. Take a look at the help file for the function for more details.</p>
+<p>In the code example below we use take the results of converting the odds to probabilities using the power method, and convert them back to odds again, with the same margin. We pretty much recover the original odds, except for some small numerical inaccuracy.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+res_odds1 &lt;-<span class="st"> </span><span class="kw">implied_odds</span>(res4$probabilities[<span class="dv">1</span>,], 
+                     <span class="dt">margin =</span> res4$margin[<span class="dv">1</span>], 
+                     <span class="dt">method =</span> <span class="st">'power'</span>)
+
+res_odds1$odds
+<span class="co">#&gt;      Home     Draw     Away</span>
+<span class="co">#&gt; [1,]  4.2 3.700001 1.950005</span>
+
+<span class="co"># The exponents.</span>
+res_odds1$exponents
+<span class="co">#&gt; [1] 0.9797634</span>
+
+<span class="co"># Compare to the exponent from the odds-to-probability conversion.</span>
+res4$exponents[<span class="dv">1</span>]
+<span class="co">#&gt; [1] 0.9797666</span></code></pre></div>
+</div>
 <div id="other-packages" class="section level2">
 <h2>Other packages</h2>
 <p>The <a href="https://cran.r-project.org/package=odds.converter">odds.converter</a> package can convert between different odds formats, including to decimal odds, that this package requires.</p>
@@ -225,15 +295,18 @@ res8$zvalues
 <p>Here are some relevant references and links:</p>
 <ul>
 <li><p>Joseph Buchdahl - USING THE WISDOM OF THE CROWD TO FIND VALUE IN A FOOTBALL MATCH BETTING MARKET <a href="https://www.football-data.co.uk/wisdom_of_crowd_bets">Link</a></p></li>
-<li><p>Keith Cheung (2015) Fixed-odds betting and traditional odds <a href="https://www.sportstradingnetwork.com/article/fixed-odds-betting-traditional-odds">Link</a></p></li>
+<li><p>Keith Cheung (2015) Fixed-odds betting and traditional odds <a href="https://www.sportstradingnetwork.com/article/fixed-odds-betting-traditional-odds/">Link</a></p></li>
 <li><p>Stephen Clarke, Stephanie Kovalchik &amp; Martin Ingram (2017) Adjusting Bookmaker’s Odds to Allow for Overround <a href="http://www.sciencepublishinggroup.com/journal/paperinfo?journalid=155&amp;doi=10.11648/j.ajss.20170506.12">Link</a></p></li>
-<li><p>Hyun Song Shin (1992) Prices of State Contingent Claims with Insider Traders, and the Favourite-Longshot Bias <a href="https://www.jstor.org/stable/2234526">Link</a></p></li>
-<li><p>Hyun Song Shin (1993) Measuring the Incidence of Insider Trading in a Market for State-Contingent Claims <a href="https://www.jstor.org/stable/2234526">Link</a></p></li>
+<li><p>Hyun Song Shin (1992) Prices of State Contingent Claims with Insider Traders, and the Favourite-Longshot Bias <a href="https://doi.org/10.2307/2234526">Link</a></p></li>
+<li><p>Hyun Song Shin (1993) Measuring the Incidence of Insider Trading in a Market for State-Contingent Claims <a href="https://doi.org/10.2307/2234526">Link</a></p></li>
 <li><p>Bruno Jullien &amp; Bernard Salanié (1994) Measuring the incidence of insider trading: A comment on Shin <a href="https://doi.org/10.2307/2235458">Link</a></p></li>
-<li><p>John Fingleton &amp; Patrick Waldron (1999) Optimal Determination of Bookmakers’ Betting Odds: Theory and Tests.<a href="https://pdfs.semanticscholar.org/e576/f3b103e0ba041ae072a9201b948059c7806e.pdf">Link</a></p></li>
+<li><p>John Fingleton &amp; Patrick Waldron (1999) Optimal Determination of Bookmakers' Betting Odds: Theory and Tests.<a href="https://www.semanticscholar.org/paper/Optimal-Determination-of-Bookmakers'-Betting-Odds%3A-Fingleton-Waldron/e576f3b103e0ba041ae072a9201b948059c7806e">Link</a></p></li>
 </ul>
 </div>
 
+
+
+<!-- code folding -->
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->

@@ -79,3 +79,27 @@ res8$probabilities
 # The estimated proportion of inside traders.
 res8$zvalues
 
+## ----jsd----------------------------------------------------------------------
+# Balanced books
+res9 <- implied_probabilities(my_odds, method = 'jsd')
+
+res9$probabilities
+
+# The estimated noise (JS distance)
+res9$distance
+
+## ----imp_odds1----------------------------------------------------------------
+
+res_odds1 <- implied_odds(res4$probabilities[1,], 
+                     margin = res4$margin[1], 
+                     method = 'power')
+
+res_odds1$odds
+
+# The exponents.
+res_odds1$exponents
+
+# Compare to the exponent from the odds-to-probability conversion.
+res4$exponents[1]
+
+

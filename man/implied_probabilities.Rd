@@ -16,7 +16,7 @@ implied_probabilities(
 \item{odds}{A matrix or numeric of bookmaker odds. The odds must be in the decimal format.}
 
 \item{method}{A string giving the method to use. Valid methods are 'basic', 'shin', 'bb',
-'wpo', 'or', 'power' or 'additive'.}
+'wpo', 'or', 'power', 'additive', and 'jsd'.}
 
 \item{normalize}{Logical. Some of the methods will give small rounding errors. If TRUE (default)
 a final normalization is applied to make absoultely sure the
@@ -33,10 +33,12 @@ depends on the method used to compute the probabilities:
 \itemize{
  \item{ zvalues (method = 'shin' and method='bb'): The estimated amount of insider trade.}
  \item{ specific_margins (method = 'wpo'): Matrix of the margins applied to each outcome.}
- \item{ odds_ratios (method = 'or'): Numeric with the odds ratio that is used to convert true
- probabilities to bookamker probabilties.}
- \item{ exponents (method = 'power'): The (inverse) exponents that is used to convert true
- probabilities to bookamker probabilties.}
+ \item{ odds_ratios (method = 'or'): Numeric with the odds ratio that are used to convert true
+ probabilities to bookmaker probabilties.}
+ \item{ exponents (method = 'power'): The (inverse) exponents that are used to convert true
+ probabilities to bookmaker probabilties.}
+ \item{ distance (method = 'jsd'): The Jensen-Shannon distances that are used to convert true
+ probabilities to bookmaker probabilties.}
 }
 
 The fourth compnent 'problematic' is a logical vector called indicating if any probabilites has fallen
@@ -72,6 +74,9 @@ from the Fingleton & Waldron (1999) paper, and adds some further assumption to t
 related to opperating costs. grossmargin should be 0 (default) or greater, typical range is 0 to 0.05.
 For values other than 0, this might sometimes cause some probabilities to not be identifiable. A warning
 will be given if this happens.
+
+The method 'jsd' was developed by Christopher D. Long, and described in a series of Twitter postings
+and a python implementation posted on GitHub.
 }
 \section{References}{
 

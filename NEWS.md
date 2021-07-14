@@ -1,3 +1,11 @@
+
+# implied Version 0.4.0
+* New function implied_odds(), that converts probabilities to odds with a given margin.
+* New method = 'jsd' in implied_probabilities(). Chekc the introductory vignette for more information.
+
+# implied Version 0.3.2
+* Fixed wrong formula for the WPO method in the introduction vignette.
+
 # implied Version 0.3.1
 * Raises error if the inverse odds sum to less than 1.
 * NA's will be returned if there are NA's in the input odds.

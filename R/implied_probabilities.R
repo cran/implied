@@ -31,11 +31,13 @@
 #' For values other than 0, this might sometimes cause some probabilities to not be identifiable. A warning
 #' will be given if this happens.
 #'
+#' The method 'jsd' was developed by Christopher D. Long, and described in a series of Twitter postings
+#' and a python implementation posted on GitHub.
 #'
 #'
 #' @param odds A matrix or numeric of bookmaker odds. The odds must be in the decimal format.
 #' @param method A string giving the method to use. Valid methods are 'basic', 'shin', 'bb',
-#' 'wpo', 'or', 'power' or 'additive'.
+#' 'wpo', 'or', 'power', 'additive', and 'jsd'.
 #' @param normalize Logical. Some of the methods will give small rounding errors. If TRUE (default)
 #' a final normalization is applied to make absoultely sure the
 #' probabilities sum to 1.
@@ -49,10 +51,12 @@
 #' \itemize{
 #'  \item{ zvalues (method = 'shin' and method='bb'): The estimated amount of insider trade.}
 #'  \item{ specific_margins (method = 'wpo'): Matrix of the margins applied to each outcome.}
-#'  \item{ odds_ratios (method = 'or'): Numeric with the odds ratio that is used to convert true
-#'  probabilities to bookamker probabilties.}
-#'  \item{ exponents (method = 'power'): The (inverse) exponents that is used to convert true
-#'  probabilities to bookamker probabilties.}
+#'  \item{ odds_ratios (method = 'or'): Numeric with the odds ratio that are used to convert true
+#'  probabilities to bookmaker probabilties.}
+#'  \item{ exponents (method = 'power'): The (inverse) exponents that are used to convert true
+#'  probabilities to bookmaker probabilties.}
+#'  \item{ distance (method = 'jsd'): The Jensen-Shannon distances that are used to convert true
+#'  probabilities to bookmaker probabilties.}
 #' }
 #'
 #' The fourth compnent 'problematic' is a logical vector called indicating if any probabilites has fallen
@@ -85,7 +89,7 @@ implied_probabilities <- function(odds, method='basic', normalize=TRUE, grossmar
                                   shin_method = 'js'){
 
   stopifnot(length(method) == 1,
-            tolower(method) %in% c('basic', 'shin', 'bb', 'wpo', 'or', 'power', 'additive'),
+            tolower(method) %in% c('basic', 'shin', 'bb', 'wpo', 'or', 'power', 'additive', 'jsd'),
             all(odds >= 1, na.rm=TRUE),
             grossmargin >= 0,
             shin_method %in% c('js', 'uniroot'),
@@ -208,7 +212,7 @@ implied_probabilities <- function(odds, method='basic', normalize=TRUE, grossmar
     # Method from the Wisdom of the Crowds pdf.
     fair_odds <- (n_outcomes * odds) / (n_outcomes - (out$margin * odds))
     out$probabilities <- 1 / fair_odds
-    out$specific_margins = (out$margin * fair_odds) / n_outcomes
+    out$specific_margins <- (out$margin * fair_odds) / n_outcomes
   } else if (method == 'or'){
 
     odds_ratios <- numeric(n_odds)
@@ -241,7 +245,7 @@ implied_probabilities <- function(odds, method='basic', normalize=TRUE, grossmar
         next
       }
 
-      res <- stats::uniroot(f=pwr_solvefor, interval = c(0.001, 1), io=inverted_odds[ii,])
+      res <- stats::uniroot(f=pwr_solvefor, interval = c(0.0001, 1), io=inverted_odds[ii,])
       exponents[ii] <- res$root
       probs[ii,] <- pwr_func(nn=res$root, io = inverted_odds[ii,])
     }
@@ -264,6 +268,27 @@ implied_probabilities <- function(odds, method='basic', normalize=TRUE, grossmar
     }
 
     out$probabilities <- probs
+
+  } else if (method == 'jsd'){
+
+    probs <- matrix(nrow=n_odds, ncol=n_outcomes)
+    jsds <- numeric(n_odds)
+
+    for (ii in 1:n_odds){
+      # Skip rows with missing values.
+      if (missing_idx[ii] == TRUE){
+        next
+      }
+      # 0.2 seems to be a reasonable upper bound.
+      res <- stats::uniroot(f=jsd_solvefor, interval = c(0.0000001, 0.2), io=inverted_odds[ii,],
+                            tol=0.0000001)
+      jsds[ii] <- res$root
+      probs[ii,] <- jsd_func(jsd=res$root, io = inverted_odds[ii,])
+    }
+
+    out$probabilities <- probs
+    out$distance <- jsds
+
 
   }
 
@@ -312,7 +337,7 @@ implied_probabilities <- function(odds, method='basic', normalize=TRUE, grossmar
 # and be used with uniroot.
 #########################################################
 
-# Calculate the probabilities usin Shin's formula, for a given value of z.
+# Calculate the probabilities using Shin's formula, for a given value of z.
 # io = inverted odds.
 shin_func <- function(zz, io){
   bb <- sum(io)
@@ -320,13 +345,12 @@ shin_func <- function(zz, io){
 }
 
 
-# Calculate the probabilities usin the odds ratio method,
+# Calculate the probabilities using the odds ratio method,
 # for a given value of the odds ratio cc.
 # io = inverted odds.
 or_func <- function(cc, io){
   io / (cc + io - (cc*io))
 }
-
 
 
 # the condition that the sum of the probabilites must sum to 1.
@@ -355,6 +379,50 @@ pwr_func <- function(nn, io){
 pwr_solvefor <- function(nn, io){
   tmp <- pwr_func(nn, io)
   sum(tmp) - 1
+}
+
+# Simple discrete KL-divergence.
+kld <- function(x, y){
+  sum(x * log(x/y))
+}
+
+# The binomial symmetric Jensen–Shannon distance
+# assuming p and io have length 1.
+binom_jsd <- function(p, io){
+
+  pvec <- c(p, 1-p)
+  iovec <- c(io, 1-io)
+
+  mm <- (pvec + iovec) / 2
+  sqrt((kld(pvec, mm)/2) + (kld(iovec, mm)/2))
+
+}
+
+# Find the probabilties for a given JS distance and inverted odds.
+jsd_func <- function(jsd, io){
+
+  # The function to be used by uniroot to find p from kl and io.
+  tosolve <- function(p, io, jsd){
+    binom_jsd(p=p, io = io) - jsd
+  }
+
+  pp <- numeric(length(io))
+  for (ii in 1:length(io)){
+    # Intervall from approx 0 to io, implying
+    # That the underlying probability i less than the
+    # inverse odds.
+    pp[ii] <- stats::uniroot(f = tosolve,
+                      interval = c(0.00001, io[ii]),
+                      io = io[ii], jsd = jsd)$root
+  }
+  return(pp)
+}
+
+# Calculate the probabilities using the Jensen-Shannon distance method,
+# for a given value of the odds ratio cc.
+# io = inverted odds.
+jsd_solvefor <- function(jsd, io){
+  sum(jsd_func(jsd=jsd, io = io)) - 1
 }
 
 
