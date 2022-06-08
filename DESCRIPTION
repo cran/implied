@@ -1,7 +1,7 @@
 Package: implied
 Type: Package
 Title: Convert Between Bookmaker Odds and Probabilities
-Version: 0.4.0
+Version: 0.4.1
 Author: Jonas Christoffer Lindstrøm
 Maintainer: Jonas Christoffer Lindstrøm <jonaslindstrom88@gmail.com>
 Description: Convert between bookmaker odds and probabilities. Eight different
@@ -9,10 +9,10 @@ Description: Convert between bookmaker odds and probabilities. Eight different
     (Hyun Song Shin, (1992) <doi:10.2307/2234526>), and others.
 License: GPL-3
 Encoding: UTF-8
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Suggests: testthat (>= 2.0.1), knitr, rmarkdown
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2021-07-14 10:11:03 UTC; jonas
+Packaged: 2022-06-08 19:26:29 UTC; Jonas Christoffer
 Repository: CRAN
-Date/Publication: 2021-07-14 10:20:06 UTC
+Date/Publication: 2022-06-08 19:40:02 UTC
