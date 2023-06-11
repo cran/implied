@@ -88,6 +88,17 @@ res9$probabilities
 # The estimated noise (JS distance)
 res9$distance
 
+## ----target_prob--------------------------------------------------------------
+# Example odds.
+odds_reach_final <- c(1.6, 2.63, 3.3, 3.7, 5.6, 7.1, 12.5, 16.5, 25)
+
+res10 <- implied_probabilities(odds_reach_final, method = 'or', target_probability = 2)
+
+res10$probabilities
+
+sum(res10$probabilities)
+
+
 ## ----imp_odds1----------------------------------------------------------------
 
 res_odds1 <- implied_odds(res4$probabilities[1,], 

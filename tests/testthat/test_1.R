@@ -16,8 +16,8 @@ my_odds2 <- t(matrix(1/c(0.870, 0.2, 0.1, 0.05, 0.02, 0.01)))
 toll <- 0.00005
 
 
+# Implied probabilities ----
 context("Implied probabilities")
-
 
 
 iprobs1_basic <- implied_probabilities(my_odds)
@@ -43,7 +43,7 @@ iprobs2_or <- implied_probabilities(my_odds2, method='or')
 iprobs2_power <- implied_probabilities(my_odds2, method='power')
 
 # The KL method does not work with my_odds2.
-#iprobs2_kl <- implied_probabilities(my_odds2, method='kl')
+#iprobs2_jsd <- implied_probabilities(my_odds2, method='jsd')
 
 
 
@@ -170,6 +170,7 @@ test_that("Output", {
 })
 
 
+# Non-normalized results ----
 context("Non-normalized results")
 
 iprobs1_basic_nn <- implied_probabilities(my_odds, normalize = FALSE)
@@ -201,6 +202,7 @@ test_that("Non-normalized results", {
 })
 
 
+# Missing values ----
 context("Missing values")
 
 # some example odds, with missing value
@@ -286,7 +288,81 @@ test_that("missing values", {
 })
 
 
+# Target probabilities other than 1 ----
+context("Target probabilities other than 1")
 
+# Some English Premier League relegation odds. Should sum to 3.
+relegation_odds <- c(1.53, 1.67, 1.25, 2.38, 2.38, 4.5, 5.5, 6.5, 7)
+
+
+iprobs3_basic <- implied_probabilities(relegation_odds, method='basic',
+                                      target_probability = 3,
+                                      normalize = FALSE)
+
+# Shin does not work with the test odds.
+# iprobs3_shin <- implied_probabilities(relegation_odds, method='shin',
+#                                       shin_method = 'uniroot',
+#                                       target_probability = 3, normalize = FALSE)
+
+
+iprobs3_bb <- implied_probabilities(relegation_odds, method='bb',
+                                     target_probability = 3, normalize = FALSE)
+
+iprobs3_wpo <- implied_probabilities(relegation_odds, method='wpo',
+                                       target_probability = 3, normalize = FALSE)
+
+iprobs3_power <- implied_probabilities(relegation_odds, method='power',
+                                      target_probability = 3, normalize = FALSE)
+
+iprobs3_or <- implied_probabilities(relegation_odds, method='or',
+                                       target_probability = 3, normalize = FALSE)
+
+iprobs3_additive <- implied_probabilities(relegation_odds, method='additive',
+                                    target_probability = 3, normalize = FALSE)
+
+
+iprobs3_jsd <- implied_probabilities(relegation_odds, method='jsd',
+                                          target_probability = 3, normalize = FALSE)
+
+
+
+test_that("Target probability 3", {
+
+  expect_equal(class(iprobs3_basic), 'list')
+  expect_equal(class(iprobs3_bb), 'list')
+  expect_equal(class(iprobs3_wpo), 'list')
+  expect_equal(class(iprobs3_power), 'list')
+  expect_equal(class(iprobs3_or), 'list')
+  expect_equal(class(iprobs3_additive), 'list')
+  expect_equal(class(iprobs3_jsd), 'list')
+
+  expect_equal(all(abs(rowSums(iprobs3_basic$probabilities) - 3) < toll), TRUE)
+  expect_equal(all(abs(rowSums(iprobs3_bb$probabilities) - 3) < toll), TRUE)
+  expect_equal(all(abs(rowSums(iprobs3_wpo$probabilities) - 3) < toll), TRUE)
+  expect_equal(all(abs(rowSums(iprobs3_power$probabilities) - 3) < 0.0001), TRUE)
+  expect_equal(all(abs(rowSums(iprobs3_or$probabilities) - 3) < toll), TRUE)
+  expect_equal(all(abs(rowSums(iprobs3_additive$probabilities) - 3) < toll), TRUE)
+  expect_equal(all(abs(rowSums(iprobs3_jsd$probabilities) - 3) < toll), TRUE)
+
+
+  expect_equal(all(iprobs3_basic$margin > 0), TRUE)
+  expect_equal(all(iprobs3_bb$margin > 0), TRUE)
+  expect_equal(all(iprobs3_wpo$margin > 0), TRUE)
+  expect_equal(all(iprobs3_power$margin > 0), TRUE)
+  expect_equal(all(iprobs3_or$margin > 0), TRUE)
+  expect_equal(all(iprobs3_additive$margin > 0), TRUE)
+  expect_equal(all(iprobs3_additive$jsd > 0), TRUE)
+
+  expect_equal(is.null(iprobs3_wpo$specific_margins), FALSE)
+  expect_equal(is.null(iprobs3_or$odds_ratios), FALSE)
+  expect_equal(is.null(iprobs3_power$exponents), FALSE)
+  expect_equal(is.null(iprobs3_jsd$distance), FALSE)
+
+  })
+
+
+
+# Implied odds ----
 context("Implied odds")
 
 
@@ -393,6 +469,24 @@ test_that("Output", {
 })
 
 
+
+# uniroot options ----
+context("uniroot options")
+
+# Example where the interval is too narrow (true or > 1.03), and extendInt is set to 'no.
+
+
+test_that("Uniroot options",
+
+  # Example where the interval is too narrow (true or > 1.03), and extendInt is set to 'no.
+  # Should throw an error, thus demonstrating that the uniroot_options works.
+  expect_warning(
+    implied_probabilities(my_odds, method='or', uniroot_options = list(interval = c(1, 1.01), extendInt = 'no'))
+  )
+
+)
+
+# Converting between odds and probabilities ----
 context("Converting between odds and probabilities")
 
 

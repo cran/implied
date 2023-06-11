@@ -12,7 +12,7 @@
 
 <meta name="author" content="Jonas C. Lindstrøm" />
 
-<meta name="date" content="2022-06-08" />
+<meta name="date" content="2023-06-11" />
 
 <title>Introduction to the implied package</title>
 
@@ -141,40 +141,59 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <h1 class="title toc-ignore">Introduction to the implied package</h1>
 <h4 class="author">Jonas C. Lindstrøm</h4>
-<h4 class="date">2022-06-08</h4>
+<h4 class="date">2023-06-11</h4>
 
 
+<div id="TOC">
+<ul>
+<li><a href="#methods">Methods</a>
+<ul>
+<li><a href="#the-basic-method">The basic method</a></li>
+<li><a href="#margin-weights-proportional-to-the-odds">Margin Weights Proportional to the Odds</a></li>
+<li><a href="#the-odds-ratio-method">The odds ratio method</a></li>
+<li><a href="#the-power-method">The power method</a></li>
+<li><a href="#the-additive-method">The additive method</a></li>
+<li><a href="#balanced-books-and-shins-method">Balanced books and Shin’s method</a></li>
+<li><a href="#the-jensenshannon-distance-method">The Jensen–Shannon distance method</a></li>
+</ul></li>
+<li><a href="#multiple-winning-outcomes">Multiple winning outcomes</a></li>
+<li><a href="#converting-probabilities-to-odds">Converting probabilities to odds</a></li>
+<li><a href="#other-packages">Other packages</a></li>
+<li><a href="#literature">Literature</a></li>
+</ul>
+</div>
 
-<p>This package contains functions that convert between bookmaker odds and probabilities. The function implied_probabilities() convert bookmaker odds into proper probabiltiies. The function implied_odds() does the inverse conversion, it turns proper probabilities into bookmaker odds. Several methods are available, with different assumptions regarding the underlying mechanism the bookmakers convert their probabilities into odds. The main focus of this introduction is present how the package works and the methods that convert bookmaker odds into probabilities and. Towards the end is a small demostration on how to convert probabiliteis to bookmaker odds.</p>
+<p>This package contains functions that convert between bookmaker odds and probabilities. The function implied_probabilities() convert bookmaker odds into proper probabilities. The function implied_odds() does the inverse conversion, it turns proper probabilities into bookmaker odds. Several methods are available, with different assumptions regarding the underlying mechanism the bookmakers convert their probabilities into odds. The main focus of this introduction is present how the package works and the methods that convert bookmaker odds into probabilities and. Towards the end is a small demonstration on how to convert probabilities to bookmaker odds.</p>
 <p>A naive conversion of bookmaker odds into probabilities has two main problems. The first is that the probabilities are not proper probabilities, since they sum to more than 1. The excess probability is called the bookmakers margin. The second problem is that the probabilities, even if the margin is removed, will be biased in several ways, usually because of what is called the <a href="https://en.wikipedia.org/wiki/Favourite-longshot_bias">favorite-longshot bias</a>. The methods in this package remove the bookmaker margin and some of them also adjust for favorite-longshot bias.</p>
+<p>In version 0.5 a new feature was introduced. It is now possible to convert odds to probabilities with multiple winners, which means that the probabilities should sum to something greater than 1. One example of this is when you have odds for different teams/players to finish top 3 in a league, in which case the probabilities should sum to 3 instead of 1. The details are explained towards the end of this document.</p>
+<div id="methods" class="section level1">
+<h1>Methods</h1>
 <div id="the-basic-method" class="section level2">
 <h2>The basic method</h2>
-<p>The default method used by the function implied_probabilities() is called the basic method. This is the simplest and most common method for converting bookmaker odds into probabilties, and is obtained by dividing the naive probabilities (the inverted odds) by the sum of the inverted odds. If <i>p<sub>i</sub></i> is the true underlying probability for outcome <i>i</i>, and <i>r<sub>i</sub></i> is the cooresponding inverted odds, then the probabilities are computed as</p>
+<p>The default method used by the function implied_probabilities() is called the basic method. This is the simplest and most common method for converting bookmaker odds into probabilities, and is obtained by dividing the naive probabilities (the inverted odds) by the sum of the inverted odds. If <i>p<sub>i</sub></i> is the true underlying probability for outcome <i>i</i>, and <i>r<sub>i</sub></i> is the corresponding inverted odds, then the probabilities are computed as</p>
 <p><i>p<sub>i</sub></i> = <i>r<sub>i</sub></i> / sum(<i>r</i>)</p>
 <p>This method tend to be the least accurate of the methods in this package. I have also seen this normalization method been referred to as the multiplicative method.</p>
 <p>The implied_probabilities() function return a list with the proper probabilities (as a matrix) and the bookmaker margins.</p>
 <p>In the examples below are three sets of bookmaker odds from three football matches.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(implied)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; If you find this package useful, please consider supporting the development at</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; https://ko-fi.com/opisthokonta</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># One column for each outcome, one row for each race or match.</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>my_odds <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="fl">4.20</span>, <span class="fl">3.70</span>, <span class="fl">1.95</span>),</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">c</span>(<span class="fl">2.45</span>, <span class="fl">3.70</span>, <span class="fl">2.90</span>),</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">c</span>(<span class="fl">2.05</span>, <span class="fl">3.20</span>, <span class="fl">3.80</span>))</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(my_odds) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;Home&#39;</span>, <span class="st">&#39;Draw&#39;</span>, <span class="st">&#39;Away&#39;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># One column for each outcome, one row for each race or match.</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>my_odds <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="fl">4.20</span>, <span class="fl">3.70</span>, <span class="fl">1.95</span>),</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">c</span>(<span class="fl">2.45</span>, <span class="fl">3.70</span>, <span class="fl">2.90</span>),</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">c</span>(<span class="fl">2.05</span>, <span class="fl">3.20</span>, <span class="fl">3.80</span>))</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(my_odds) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;Home&#39;</span>, <span class="st">&#39;Draw&#39;</span>, <span class="st">&#39;Away&#39;</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>res1 <span class="ot">&lt;-</span> <span class="fu">implied_probabilities</span>(my_odds)</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>res1 <span class="ot">&lt;-</span> <span class="fu">implied_probabilities</span>(my_odds)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>res1<span class="sc">$</span>probabilities</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           Home      Draw      Away</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 0.2331556 0.2646631 0.5021813</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] 0.3988848 0.2641264 0.3369888</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,] 0.4586948 0.2938514 0.2474538</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>res1<span class="sc">$</span>margin</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.02118602 0.02326112 0.06346277</span></span></code></pre></div>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>res1<span class="sc">$</span>probabilities</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           Home      Draw      Away</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 0.2331556 0.2646631 0.5021813</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] 0.3988848 0.2641264 0.3369888</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,] 0.4586948 0.2938514 0.2474538</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>res1<span class="sc">$</span>margin</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.02118602 0.02326112 0.06346277</span></span></code></pre></div>
 </div>
 <div id="margin-weights-proportional-to-the-odds" class="section level2">
 <h2>Margin Weights Proportional to the Odds</h2>
@@ -208,17 +227,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>res3<span class="sc">$</span>probabilities</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           Home      Draw      Away</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 0.2320048 0.2636415 0.5043537</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] 0.3996912 0.2633869 0.3369219</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,] 0.4634406 0.2919032 0.2446562</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 0.2320045 0.2636413 0.5043542</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] 0.3996913 0.2633868 0.3369219</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,] 0.4634417 0.2919028 0.2446556</span></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># The odds ratios converting the proper probablities to bookmaker probabilities.</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>res3<span class="sc">$</span>odds_ratios</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 1.034449 1.035805 1.102606</span></span></code></pre></div>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 1.034456 1.035814 1.102631</span></span></code></pre></div>
 </div>
 <div id="the-power-method" class="section level2">
 <h2>The power method</h2>
-<p>The power method models the bookmaker probabilties as a power function of the proper probabilties. This method is also described in the Wisdom of the Crowds document, where it is referred to as the logarithmic method.</p>
+<p>The power method models the bookmaker probabilities as a power function of the proper probabilities. This method is also described in the Wisdom of the Crowds document, where it is referred to as the logarithmic method.</p>
 <p><i>p<sub>i</sub></i> = <i>r<sub>i</sub></i><sup>(1/k)</sup></p>
 <p>where <i>k</i> is selected so that sum(<i>p<sub>i</sub></i>) = 1.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>res4 <span class="ot">&lt;-</span> <span class="fu">implied_probabilities</span>(my_odds, <span class="at">method =</span> <span class="st">&#39;power&#39;</span>)</span>
@@ -235,7 +254,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="the-additive-method" class="section level2">
 <h2>The additive method</h2>
-<p>The additive method removes the margin from the naive probabilites by subtracting an equal amount of of the margin from each outcome. The formula used is</p>
+<p>The additive method removes the margin from the naive probabilities by subtracting an equal amount of of the margin from each outcome. The formula used is</p>
 <p><i>p<sub>i</sub></i> = <i>r<sub>i</sub></i> - ((sum(<i>r</i>) - 1) / n)</p>
 <p>If there are only two outcomes, the additive method and Shin’s method are equivalent.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -289,15 +308,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="the-jensenshannon-distance-method" class="section level2">
 <h2>The Jensen–Shannon distance method</h2>
-<p>This method sees the improper bookmaker probabilties as a noisy version of the true underlying probabilities, and uses the <a href="https://en.wikipedia.org/wiki/Jensen%E2%80%93Shannon_divergence">Jensen–Shannon (JS) distance</a> as a measure of how noisy the bookmaker probabilities are.</p>
-<p>For the sake of finding the denoised proabilities <i>p<sub>i</sub></i>, each outcome i is modelled as a binomial variable, with outcomes i and NOT i. These have probabilities <i>p<sub>i</sub></i> and 1-<i>p<sub>i</sub></i>, with corresponding improper bookmaker probabilities <i>r<sub>i</sub></i> and 1-<i>r<sub>i</sub></i>. For a given noise-level D, as measued by the symmetric JS distance, the underlying probabilities can be found by solving the JS distance equation for <i>p<sub>i</sub></i>:</p>
+<p>This method sees the improper bookmaker probabilities as a noisy version of the true underlying probabilities, and uses the <a href="https://en.wikipedia.org/wiki/Jensen%E2%80%93Shannon_divergence">Jensen–Shannon (JS) distance</a> as a measure of how noisy the bookmaker probabilities are.</p>
+<p>For the sake of finding the denoised probabilities <i>p<sub>i</sub></i>, each outcome i is modeled as a binomial variable, with outcomes i and NOT i. These have probabilities <i>p<sub>i</sub></i> and 1-<i>p<sub>i</sub></i>, with corresponding improper bookmaker probabilities <i>r<sub>i</sub></i> and 1-<i>r<sub>i</sub></i>. For a given noise-level D, as measued by the symmetric JS distance, the underlying probabilities can be found by solving the JS distance equation for <i>p<sub>i</sub></i>:</p>
 <p>D = 0.5 * BKL(<i>p<sub>i</sub></i>, <i>m<sub>i</sub></i>) + 0.5 * BKL(<i>r<sub>i</sub></i>, <i>m<sub>i</sub></i>)</p>
 <p>where <i>m<sub>i</sub></i> = (<i>p<sub>i</sub></i> + <i>r<sub>i</sub></i>) / 2</p>
 <p>and</p>
 <p>BKL(x, y) = <i>x</i> * log(<i>x</i>/<i>y</i>) + (1-<i>x</i>) * log((1-<i>x</i>)/(1-<i>y</i>))) + <i>y</i> * log(<i>y</i>/<i>x</i>) + (1-<i>y</i>) * log((1-<i>y</i>)/(1-<i>y</i>))</p>
 <p>is the “binomial” Kullback–Leibler divergence.</p>
 <p>The solution is found numerically by finding the value of of <i>D</i> so that sum(<i>p<sub>i</sub></i>) = 1.</p>
-<p>The method was developed by Christopher D. Long (twitter: <a href="https://twitter.com/octonion">@octonion</a>), and described in a series of Twitter postings [<a href="https://twitter.com/octonion/status/1412847000068952064">1</a>].</p>
+<p>The method was developed by Christopher D. Long (twitter: <span class="citation">@octonion</span>), and described in a series of Twitter postings.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Balanced books</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>res9 <span class="ot">&lt;-</span> <span class="fu">implied_probabilities</span>(my_odds, <span class="at">method =</span> <span class="st">&#39;jsd&#39;</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -309,35 +328,54 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># The estimated noise (JS distance)</span></span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>res9<span class="sc">$</span>distance</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.005485370 0.005849242 0.016099288</span></span></code></pre></div>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.005485371 0.005849245 0.016099204</span></span></code></pre></div>
 </div>
-<div id="converting-probabilities-to-odds" class="section level2">
-<h2>Converting probabilities to odds</h2>
+</div>
+<div id="multiple-winning-outcomes" class="section level1">
+<h1>Multiple winning outcomes</h1>
+<p>In the examples above it has been assumed that the probabilities should sum to 1. This is the correct approach when only 1 of the possible outcomes occur, but this is not correct when multiple outcomes occur. One example of this are odds for players/teams to reach the final in a tournament. In this case the probabilities should sum to 2, as two of the outcomes will be considered a win. Another example is placing in the top 5 in a league, in which case the probabilities should sum to 5.</p>
+<p>You can change the </i>target_probability</i> to something other than 1, and this works for most methods.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Example odds.</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>odds_reach_final <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">1.6</span>, <span class="fl">2.63</span>, <span class="fl">3.3</span>, <span class="fl">3.7</span>, <span class="fl">5.6</span>, <span class="fl">7.1</span>, <span class="fl">12.5</span>, <span class="fl">16.5</span>, <span class="dv">25</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>res10 <span class="ot">&lt;-</span> <span class="fu">implied_probabilities</span>(odds_reach_final, <span class="at">method =</span> <span class="st">&#39;or&#39;</span>, <span class="at">target_probability =</span> <span class="dv">2</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>res10<span class="sc">$</span>probabilities</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           [,1]      [,2]      [,3]     [,4]     [,5]      [,6]       [,7]</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 0.6107334 0.3660944 0.2904215 0.258519 0.169879 0.1336902 0.07566384</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            [,8]       [,9]</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 0.05725567 0.03774298</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(res10<span class="sc">$</span>probabilities)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 2</span></span></code></pre></div>
+</div>
+<div id="converting-probabilities-to-odds" class="section level1">
+<h1>Converting probabilities to odds</h1>
 <p>There is also a function that can do the opposite what the implied_probabilities() function does, namely the implied_odds() function. This function converts probabilities to odds, for a given margin, the inverse of the methods as described above. Not all methods have been implemented yet. Take a look at the help file for the function for more details.</p>
 <p>In the code example below we use take the results of converting the odds to probabilities using the power method, and convert them back to odds again, with the same margin. We pretty much recover the original odds, except for some small numerical inaccuracy.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>res_odds1 <span class="ot">&lt;-</span> <span class="fu">implied_odds</span>(res4<span class="sc">$</span>probabilities[<span class="dv">1</span>,], </span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">margin =</span> res4<span class="sc">$</span>margin[<span class="dv">1</span>], </span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">method =</span> <span class="st">&#39;power&#39;</span>)</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>res_odds1<span class="sc">$</span>odds</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      Home     Draw     Away</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,]  4.2 3.700001 1.950005</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co"># The exponents.</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>res_odds1<span class="sc">$</span>exponents</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.9797634</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare to the exponent from the odds-to-probability conversion.</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>res4<span class="sc">$</span>exponents[<span class="dv">1</span>]</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.9797666</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>res_odds1 <span class="ot">&lt;-</span> <span class="fu">implied_odds</span>(res4<span class="sc">$</span>probabilities[<span class="dv">1</span>,], </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">margin =</span> res4<span class="sc">$</span>margin[<span class="dv">1</span>], </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">method =</span> <span class="st">&#39;power&#39;</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>res_odds1<span class="sc">$</span>odds</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      Home     Draw     Away</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,]  4.2 3.700001 1.950005</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co"># The exponents.</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>res_odds1<span class="sc">$</span>exponents</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.9797634</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare to the exponent from the odds-to-probability conversion.</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>res4<span class="sc">$</span>exponents[<span class="dv">1</span>]</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.9797666</span></span></code></pre></div>
 </div>
-<div id="other-packages" class="section level2">
-<h2>Other packages</h2>
+<div id="other-packages" class="section level1">
+<h1>Other packages</h1>
 <p>The <a href="https://cran.r-project.org/package=odds.converter">odds.converter</a> package can convert between different odds formats, including to decimal odds, that this package requires.</p>
 </div>
-<div id="literature" class="section level2">
-<h2>Literature</h2>
+<div id="literature" class="section level1">
+<h1>Literature</h1>
 <p>Here are some relevant references and links:</p>
 <ul>
 <li><p>Joseph Buchdahl - USING THE WISDOM OF THE CROWD TO FIND VALUE IN A FOOTBALL MATCH BETTING MARKET <a href="https://www.football-data.co.uk/wisdom_of_crowd_bets">Link</a></p></li>

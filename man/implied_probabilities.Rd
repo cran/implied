@@ -8,8 +8,11 @@ implied_probabilities(
   odds,
   method = "basic",
   normalize = TRUE,
+  target_probability = 1,
   grossmargin = 0,
-  shin_method = "js"
+  shin_method = "js",
+  shin_maxiter = 1000,
+  uniroot_options = NULL
 )
 }
 \arguments{
@@ -19,12 +22,18 @@ implied_probabilities(
 'wpo', 'or', 'power', 'additive', and 'jsd'.}
 
 \item{normalize}{Logical. Some of the methods will give small rounding errors. If TRUE (default)
-a final normalization is applied to make absoultely sure the
+a final normalization is applied to make absolutely sure the
 probabilities sum to 1.}
+
+\item{target_probability}{Numeric. The value the probabilities should sum to. Default is 1.}
 
 \item{grossmargin}{Numeric. Must be 0 or greater. See the details.}
 
-\item{shin_method}{Character. Either 'js' (defeault) or 'uniroot'. See the details.}
+\item{shin_method}{Character. Either 'js' (default) or 'uniroot'. See the details.}
+
+\item{shin_maxiter}{numeric. Max number of iterations for shin method 'js'.}
+
+\item{uniroot_options}{list. Option passed on to the uniroot solver, for those methods where it is applicable. See 'details'.}
 }
 \value{
 A named list. The first component is named 'probabilities' and contain a matrix of
@@ -34,35 +43,35 @@ depends on the method used to compute the probabilities:
  \item{ zvalues (method = 'shin' and method='bb'): The estimated amount of insider trade.}
  \item{ specific_margins (method = 'wpo'): Matrix of the margins applied to each outcome.}
  \item{ odds_ratios (method = 'or'): Numeric with the odds ratio that are used to convert true
- probabilities to bookmaker probabilties.}
+ probabilities to bookmaker probabilities.}
  \item{ exponents (method = 'power'): The (inverse) exponents that are used to convert true
- probabilities to bookmaker probabilties.}
+ probabilities to bookmaker probabilities.}
  \item{ distance (method = 'jsd'): The Jensen-Shannon distances that are used to convert true
- probabilities to bookmaker probabilties.}
+ probabilities to bookmaker probabilities.}
 }
 
-The fourth compnent 'problematic' is a logical vector called indicating if any probabilites has fallen
+The fourth component 'problematic' is a logical vector called indicating if any probabilities has fallen
 outside the 0-1 range, or if there were some other problem computing the probabilities.
 }
 \description{
-This function calculate the implied probabilties from bookmaker odds in decimal format, while
-accounting for overround in the odds.
+This function calculate the implied probabilities from bookmaker odds in decimal format, while
+accounting for over-round in the odds.
 }
 \details{
 The method 'basic' is the simplest method, and computes the implied probabilities by
 dividing the inverted odds by the sum of the inverted odds.
 
 The methods 'wpo' (Weights Proportional to the Odds), 'or' (Odds Ratio) and 'power' are form the Wisdom of the Crowds document (the updated version) by
-Joseph Buchdahl. The method 'or' is origianlly by Cheung (2015), and the method 'power' is there referred
+Joseph Buchdahl. The method 'or' is originally by Cheung (2015), and the method 'power' is there referred
 to as the logarithmic method.
 
 The method 'shin' uses the method by Shin (1992, 1993). This model assumes that there is a fraction of
 insider trading, and that the bookmakers tries to maximize their profits. In addition to providing
-implied probabilties, the method also gives an estimate of the proportion if inside trade, denoted z. Two algorithms
-are implemented for finding the probabilities and z. Which algorithm to use is chosen via the shin_mehod argument.
+implied probabilities, the method also gives an estimate of the proportion if inside trade, denoted z. Two algorithms
+are implemented for finding the probabilities and z. Which algorithm to use is chosen via the shin_method argument.
 The default method (shin_method = 'js') is based on the algorithm in Jullien & Salanié (1994). The 'uniroot'
 method uses R's built in equation solver to find the probabilities. The uniroot approach is also used for the
-'pwr' and 'or' methods. The two methods might give slightly different answers, especially when the bookamer margin
+'pwr' and 'or' methods. The two methods might give slightly different answers, especially when the bookmaker margin
 (and z) is small.
 
 The 'bb' (short for "balanced books") method is from Fingleton & Waldron (1999), and is a variant of Shin's method. It too assume
@@ -71,12 +80,17 @@ minimize their risk.
 
 Both the 'shin' and 'bb' methods can be used together with the 'grossmargin' argument. This is also
 from the Fingleton & Waldron (1999) paper, and adds some further assumption to the calculations,
-related to opperating costs. grossmargin should be 0 (default) or greater, typical range is 0 to 0.05.
+related to operating costs. grossmargin should be 0 (default) or greater, typical range is 0 to 0.05.
 For values other than 0, this might sometimes cause some probabilities to not be identifiable. A warning
 will be given if this happens.
 
 The method 'jsd' was developed by Christopher D. Long, and described in a series of Twitter postings
 and a python implementation posted on GitHub.
+
+Methods 'shin', 'or', 'power', and 'jsd' use the uniroot solver to find the correct probabilities. Sometimes it will fail
+to find a solution, but it can be made to work by tuning some setting. The uniroot_options argument accepts a list with
+options that are passed on to the uniroot function. Currently the interval, maxit, tol and extendInt argument of
+uniroot can be changed. See the Troubleshooting vignette for more details.
 }
 \section{References}{
 
